@@ -4,14 +4,14 @@ const JWT_SECRET = " qwerty";
 const app = express();
 app.use(express.json());
 
-app.post("./singnup", (req, res) => {});
+app.post("/user/singnup", (req, res) => {});
 
-app.post("./singnin", (req, res) => {});
+app.post("/user/singnin", (req, res) => {});
 
-app.post("./createCourse", (req, res) => {});
+app.get("/user/purchases", (req, res) => {});
 
-app.get("./deleteCourse", (req, res) => {});
+app.post("/course/purchase", (req, res) => {});
 
-app.get("./addContent", (req, res) => {});
+app.get("/courses", (req, res) => {});
 
 app.listen(3000);
