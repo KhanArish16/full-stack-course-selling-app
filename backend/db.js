@@ -1,8 +1,5 @@
 const { Schema, default: mongoose } = require("mongoose");
 const objectId = Schema.ObjectId;
-mongoose.connect(
-  "mongodb+srv://mohdarish8482:babbanbillo8482@learning-cluster1.91lka6y.mongodb.net/course-selling-app"
-);
 
 const userSchema = new Schema({
   email: { type: String, unique: true },
