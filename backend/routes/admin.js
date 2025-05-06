@@ -98,9 +98,53 @@ adminRouter.post("/course", adminMiddleware, async (req, res) => {
   }
 });
 
-adminRouter.put("/course", (req, res) => {});
+adminRouter.put("/course", adminMiddleware, async (req, res) => {
+  const adminId = req.adminId;
 
-adminRouter.get("/bulk", (req, res) => {});
+  const { title, description, imageUrl, price, courseId } = req.body;
+
+  try {
+    const course = await courseModel.updateOne(
+      {
+        _id: courseId,
+        createrId: adminId,
+      },
+      {
+        title,
+        description,
+        imageUrl,
+        price,
+      }
+    );
+
+    return res.json({
+      msg: "successfully Course updated",
+      course: course._id,
+    });
+  } catch (e) {
+    return res.status(403).json({
+      msg: "Failed To update Course",
+    });
+  }
+});
+
+adminRouter.get("/bulk", adminMiddleware, async (req, res) => {
+  const adminId = req.adminId;
+  try {
+    const courses = await courseModel.find({
+      createrId: adminId,
+    });
+
+    return res.json({
+      msg: "successfully get all admin courses",
+      courses,
+    });
+  } catch (e) {
+    return res.status(403).json({
+      msg: "Failed To get courses",
+    });
+  }
+});
 
 module.exports = {
   adminRouter: adminRouter,
