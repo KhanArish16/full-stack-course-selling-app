@@ -4,7 +4,7 @@ const z = require("zod");
 const bcrypt = require("bcrypt");
 const userRouter = Router();
 const jwt = require("jsonwebtoken");
-const JWT_USER_PASSWORD = "myuser";
+const { JWT_USER_PASSWORD } = require("../config");
 
 userRouter.post("/singnup", async (req, res) => {
   const requredbody = z.object({

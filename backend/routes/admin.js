@@ -2,9 +2,10 @@ const { Router } = require("express");
 const adminRouter = Router();
 const bcrypt = require("bcrypt");
 const { z } = require("zod");
-const { adminModel } = require("../db");
+const { adminModel, courseModel } = require("../db");
 const jwt = require("jsonwebtoken");
-const JWT_ADMIN_PASSWORD = "myadmin";
+const { JWT_ADMIN_PASSWORD } = require("../config").default;
+const adminMiddleware = require("../middleware/admin");
 
 adminRouter.post("/singnup", async (req, res) => {
   const requredbody = z.object({
@@ -72,7 +73,30 @@ adminRouter.post("/singnin", async (req, res) => {
   }
 });
 
-adminRouter.post("/course", (req, res) => {});
+adminRouter.post("/course", adminMiddleware, async (req, res) => {
+  const adminId = req.adminId;
+
+  const { title, description, imageUrl, price } = req.body;
+
+  try {
+    const course = await courseModel.create({
+      title,
+      description,
+      imageUrl,
+      price,
+      createrId: adminId,
+    });
+
+    return res.json({
+      msg: "successfully Course Added",
+      course: course._id,
+    });
+  } catch (e) {
+    return res.status(403).json({
+      msg: "Failed To Add Course",
+    });
+  }
+});
 
 adminRouter.put("/course", (req, res) => {});
 
