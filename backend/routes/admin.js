@@ -4,8 +4,8 @@ const bcrypt = require("bcrypt");
 const { z } = require("zod");
 const { adminModel, courseModel } = require("../db");
 const jwt = require("jsonwebtoken");
-const { JWT_ADMIN_PASSWORD } = require("../config").default;
-const adminMiddleware = require("../middleware/admin");
+const { JWT_ADMIN_PASSWORD } = require("../config");
+const { adminMiddleware } = require("../middleware/admin");
 
 adminRouter.post("/singnup", async (req, res) => {
   const requredbody = z.object({
@@ -17,7 +17,7 @@ adminRouter.post("/singnup", async (req, res) => {
 
   const parsedData = requredbody.safeParse(req.body);
   if (!parsedData.success) {
-    res.json({
+    return res.json({
       message: "Incorrect Format",
     });
   }
@@ -74,70 +74,58 @@ adminRouter.post("/singnin", async (req, res) => {
 });
 
 adminRouter.post("/course", adminMiddleware, async (req, res) => {
-  const adminId = req.adminId;
+  const adminId = req.userId;
 
   const { title, description, imageUrl, price } = req.body;
 
-  try {
-    const course = await courseModel.create({
-      title,
-      description,
-      imageUrl,
-      price,
-      createrId: adminId,
-    });
+  const course = await courseModel.create({
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
+    price: price,
+    creatorId: adminId,
+  });
 
-    return res.json({
-      msg: "successfully Course Added",
-      course: course._id,
-    });
-  } catch (e) {
-    return res.status(403).json({
-      msg: "Failed To Add Course",
-    });
-  }
+  res.json({
+    message: "Course created",
+    courseId: course._id,
+  });
 });
 
 adminRouter.put("/course", adminMiddleware, async (req, res) => {
-  const adminId = req.adminId;
+  const adminId = req.userId;
 
   const { title, description, imageUrl, price, courseId } = req.body;
 
-  try {
-    const course = await courseModel.updateOne(
-      {
-        _id: courseId,
-        createrId: adminId,
-      },
-      {
-        title,
-        description,
-        imageUrl,
-        price,
-      }
-    );
+  const course = await courseModel.updateOne(
+    {
+      _id: courseId,
+      creatorId: adminId,
+    },
+    {
+      title: title,
+      description: description,
+      imageUrl: imageUrl,
+      price: price,
+    }
+  );
 
-    return res.json({
-      msg: "successfully Course updated",
-      course: course._id,
-    });
-  } catch (e) {
-    return res.status(403).json({
-      msg: "Failed To update Course",
-    });
-  }
+  res.json({
+    message: "Course updated",
+    courseId: course._id,
+  });
 });
 
-adminRouter.get("/bulk", adminMiddleware, async (req, res) => {
-  const adminId = req.adminId;
+adminRouter.get("/course/bulk", adminMiddleware, async (req, res) => {
+  const adminId = req.userId;
   try {
     const courses = await courseModel.find({
-      createrId: adminId,
+      creatorId: adminId,
     });
 
     return res.json({
       msg: "successfully get all admin courses",
-      courses,
+      courses: courses,
     });
   } catch (e) {
     return res.status(403).json({
