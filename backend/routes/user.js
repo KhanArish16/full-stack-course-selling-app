@@ -1,10 +1,11 @@
 const { Router } = require("express");
-const { userModel } = require("../db");
+const { userModel, purchaseModel } = require("../db");
 const z = require("zod");
 const bcrypt = require("bcrypt");
 const userRouter = Router();
 const jwt = require("jsonwebtoken");
 const { JWT_USER_PASSWORD } = require("../config");
+const { userMiddleware } = require("../middleware/user");
 
 userRouter.post("/singnup", async (req, res) => {
   const requredbody = z.object({
@@ -72,7 +73,17 @@ userRouter.post("/singnin", async (req, res) => {
   }
 });
 
-userRouter.get("/purchases", (req, res) => {});
+userRouter.get("/purchases", userMiddleware, async (req, res) => {
+  const userId = req.userId;
+
+  const purchases = await purchaseModel.find({
+    userId,
+  });
+
+  res.json({
+    purchases,
+  });
+});
 
 module.exports = {
   userRouter: userRouter,
